@@ -1,99 +1,68 @@
-import React from 'react';
-import { Search, ShoppingCart, Heart, ArrowRight, Facebook, Instagram, Phone } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
-  // Dữ liệu mẫu để hiển thị (Sau này bạn C sẽ đổ từ Database vào đây)
-  const trendingFlowers = [
-    { id: 1, name: "Bó Hồng Juliet", price: "550.000đ", img: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=500" },
-    { id: 2, name: "Hướng Dương Tỏa Nắng", price: "420.000đ", img: "https://images.unsplash.com/photo-1597848212624-a19eb3bf93a9?w=500" },
-    { id: 3, name: "Lẵng Tulip Hà Lan", price: "890.000đ", img: "https://images.unsplash.com/photo-1520323232427-6b620010513f?w=500" },
-    { id: 4, name: "Cẩm Tú Cầu Đà Lạt", price: "600.000đ", img: "https://images.unsplash.com/photo-1508784411316-02b8cd4d3a3a?w=500" },
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const banners = [
+    {
+      image: "https://i.pinimg.com/1200x/7c/95/bb/7c95bb1faea6b01ae34d00c46d15a983.jpg",
+      title: "Hoa Tươi Mỗi Ngày 🌸",
+      subtitle: "Giảm giá đến 30% – Giao hàng nhanh & tận tâm",
+    },
+    {
+      image: "https://i.pinimg.com/1200x/ca/81/d3/ca81d3448e06f6b153ccf082770ca039.jpg",
+      title: "Trao Yêu Thương 💐",
+      subtitle: "Thiết kế độc đáo – Sang trọng – Tinh tế",
+    }
   ];
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [banners.length]);
+
   return (
-    <div style={styles.container}>
-      {/* --- PHẦN 1: HERO BANNER (Vùng ấn tượng đầu tiên) --- */}
-      <section style={styles.heroSection}>
-        <div style={styles.heroContent}>
-          <h1 style={styles.heroTitle}>
-            Trao gửi <span style={{color: '#FF4D6D'}}>yêu thương</span>, <br />
-            vẹn nguyên từng khoảnh khắc
-          </h1>
-          <p style={styles.heroSub}>Hương hoa thay lời muốn nói, gửi gắm tâm tình đến người thân yêu của bạn.</p>
-          <button style={styles.btnPrimary}>MUA NGAY <ArrowRight size={18} /></button>
-        </div>
-        <div style={styles.heroImageContainer}>
-          <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=800" alt="Banner" style={styles.heroImg} />
-        </div>
-      </section>
-
-      {/* --- PHẦN 2: DANH MỤC TRÒN (Bám sát mẫu bạn gửi) --- */}
-      <section style={styles.catSection}>
-        <div style={styles.catGrid}>
-          {[
-            { label: 'HOA CHÚC MỪNG', icon: '💐' },
-            { label: 'HOA CƯỚI', icon: '💍' },
-            { label: 'HOA CHIA BUỒN', icon: '🕯️' }
-          ].map((item, index) => (
-            <div key={index} style={styles.catCard}>
-              <div style={styles.catCircle}>{item.icon}</div>
-              <div style={styles.catBox}>
-                <p style={styles.catLabel}>{item.label}</p>
-              </div>
+    <div className="animate-fadeIn">
+      {/* 🌸 Hero Banner */}
+      <section className="relative my-6 mx-auto max-w-6xl rounded-2xl overflow-hidden shadow-lg h-[350px] md:h-[450px]">
+        {banners.map((banner, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
+          >
+            <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center text-white text-center">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-lg">{banner.title}</h2>
+              <p className="text-lg mb-6">{banner.subtitle}</p>
+              <Link to="/product" className="bg-[#ff8fab] hover:bg-[#ff6b81] px-8 py-3 rounded-full font-bold transition-transform hover:scale-105">
+                Mua Ngay
+              </Link>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </section>
 
-      {/* --- PHẦN 3: SẢN PHẨM NỔI BẬT --- */}
-      <section style={styles.productSection}>
-        <h2 style={styles.sectionTitle}>Sản Phẩm Bán Chạy</h2>
-        <div style={styles.productGrid}>
-          {trendingFlowers.map(flower => (
-            <div key={flower.id} style={styles.flowerCard}>
-              <div style={styles.imgWrap}>
-                <img src={flower.img} alt={flower.name} style={styles.flowerImg} />
-                <div style={styles.heartIcon}><Heart size={18} color="#FF4D6D" /></div>
-              </div>
-              <h3 style={styles.flowerName}>{flower.name}</h3>
-              <p style={styles.flowerPrice}>{flower.price}</p>
-              <button style={styles.addCartBtn}>Thêm vào giỏ</button>
+      {/* 🌿 Placeholder cho Sản phẩm nổi bật */}
+      <section className="py-12 max-w-7xl mx-auto px-4 text-center">
+        <h2 className="text-3xl font-bold text-[#4b2c2b] mb-8">Sản phẩm nổi bật</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {/* Tạm thời hiển thị khung trống để bạn đẩy lên GitHub không bị lỗi API */}
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="border border-pink-100 rounded-xl p-4 bg-white shadow-sm">
+              <div className="aspect-square bg-gray-100 rounded-lg mb-4"></div>
+              <div className="h-4 w-3/4 bg-gray-100 mx-auto mb-2"></div>
+              <div className="h-4 w-1/2 bg-gray-100 mx-auto"></div>
             </div>
           ))}
         </div>
       </section>
     </div>
   );
-};
-
-// --- HỆ THỐNG STYLES (Đảm bảo tính thẩm mỹ cao) ---
-const styles = {
-  container: { fontFamily: "'Segoe UI', Tahoma, sans-serif", color: '#333' },
-  heroSection: { display: 'flex', alignItems: 'center', backgroundColor: '#FFF0F3', margin: '20px 50px', borderRadius: '40px', padding: '60px' },
-  heroContent: { flex: 1 },
-  heroTitle: { fontSize: '3.2rem', fontWeight: '800', lineHeight: '1.2', marginBottom: '20px' },
-  heroSub: { fontSize: '1.1rem', color: '#666', marginBottom: '30px', maxWidth: '450px' },
-  btnPrimary: { display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#FF4D6D', color: '#fff', border: 'none', padding: '15px 35px', borderRadius: '30px', fontWeight: 'bold', cursor: 'pointer' },
-  heroImageContainer: { flex: 1, textAlign: 'right' },
-  heroImg: { width: '90%', borderRadius: '30px' },
-
-  catSection: { padding: '80px 0' },
-  catGrid: { display: 'flex', justifyContent: 'center', gap: '60px' },
-  catCard: { display: 'flex', flexDirection: 'column', alignItems: 'center', width: '250px' },
-  catCircle: { width: '120px', height: '120px', borderRadius: '50%', border: '3px solid #FF4D6D', backgroundColor: '#fff', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '40px', zIndex: 2, marginBottom: '-30px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  catBox: { width: '100%', padding: '50px 20px 20px', border: '1px solid #FFB7C5', borderRadius: '20px', textAlign: 'center' },
-  catLabel: { fontWeight: 'bold', fontSize: '14px', letterSpacing: '1px' },
-
-  productSection: { padding: '0 80px 80px' },
-  sectionTitle: { textAlign: 'center', fontSize: '2.5rem', marginBottom: '50px' },
-  productGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '30px' },
-  flowerCard: { textAlign: 'center' },
-  imgWrap: { position: 'relative', overflow: 'hidden', borderRadius: '20px', marginBottom: '15px' },
-  flowerImg: { width: '100%', height: '300px', objectFit: 'cover' },
-  heartIcon: { position: 'absolute', top: '15px', right: '15px', backgroundColor: '#fff', padding: '8px', borderRadius: '50%' },
-  flowerName: { fontSize: '1.2rem', fontWeight: 'bold' },
-  flowerPrice: { color: '#FF4D6D', fontWeight: 'bold', margin: '10px 0', fontSize: '1.1rem' },
-  addCartBtn: { width: '100%', padding: '10px', borderRadius: '10px', border: '1px solid #FF4D6D', color: '#FF4D6D', backgroundColor: 'transparent', fontWeight: 'bold', cursor: 'pointer' }
 };
 
 export default HomePage;

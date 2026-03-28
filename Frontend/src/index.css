@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🎨 Định nghĩa bảng màu DDT Flower */
+:root {
+  --bg-main: #f9f5f1;      /* nền tổng thể */
+  --sidebar-bg: #f8dfe2;   /* sidebar nhẹ hơn */
+  --primary: #e06c7f;      /* hồng đất chủ đạo */
+  --secondary: #faf8f6;    /* nền hồng nhạt */
+  --accent: #8b5e3c;       /* nâu gỗ */
+  --text-main: #3e2f2f;    /* chữ chính */
+  --card-bg: #fff8fb;      /* nền thẻ sáng hơn */
+  --light: #ffffff;
+}
+
+/* Reset và thiết lập cơ bản */
+body {
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Layer components của Tailwind để tái sử dụng class custom */
+@layer components {
+  .btn-primary {
+    @apply font-semibold px-4 py-2 rounded-lg transition-all duration-200 text-white;
+    background-color: var(--primary);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--accent);
+    @apply shadow-md scale-105;
+  }
+
+  .shadow-soft {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Các class tiện ích bổ sung */
+.bg-primary { background-color: var(--primary); }
+.text-primary { color: var(--primary); }
+.border-primary { border-color: var(--primary); }
+
+header, .navbar, .footer {
+  background-color: var(--secondary) !important;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
