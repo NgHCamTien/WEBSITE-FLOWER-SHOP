@@ -8,17 +8,16 @@ const Login = () => {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [name, setName] = useState(""); // State cho Họ tên
   const [subscribeNewsletter, setSubscribeNewsletter] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-  // Giả sử AuthContext của bạn đã có các hàm này
-  const { login, register, setUser } = useContext(AuthContext) || {}; 
+  const { login, register } = useContext(AuthContext) || {};
 
-  // --- FACEBOOK LOGIN ---
+  // --- LOGIC GIỮ NGUYÊN ---
   const handleFacebookLogin = () => {
     const FACEBOOK_APP_ID = "1180477920674027";
     const redirectUri = window.location.origin + "/auth/facebook/callback";
@@ -26,16 +25,13 @@ const Login = () => {
     window.location.href = url;
   };
 
-  // --- GOOGLE LOGIN ---
   const googleLoginCustom = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
         const userInfo = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
-        // Logic gọi API backend của bạn ở đây...
         console.log("Google User:", userInfo.data);
-        // Sau khi thành công: navigate("/");
       } catch (err) {
         setError("Lỗi Google Login!");
       }
@@ -51,8 +47,6 @@ const Login = () => {
         const result = await login(email, password);
         if (result?.success) navigate(result.user.role === "admin" ? "/admin" : "/");
         else setError(result?.message || "Sai thông tin đăng nhập!");
-    } else {
-        setError("AuthContext chưa được thiết lập đúng.");
     }
     setLoading(false);
   };
@@ -60,10 +54,20 @@ const Login = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
     if (register) {
-        const result = await register(name, email, password, "", "", subscribeNewsletter);
-        if (result?.success) setMode("login");
-        else setError(result?.message || "Đăng ký thất bại.");
+        try {
+            const result = await register(name, email, password, "", "", subscribeNewsletter);
+            if (result?.success) {
+                alert("Chúc mừng Cam Tiên đã tạo tài khoản thành công! 🌸");
+                setMode("login");
+                setPassword(""); 
+            } else {
+                setError(result?.message || "Đăng ký không thành công.");
+            }
+        } catch (err) {
+            setError("Có lỗi hệ thống xảy ra.");
+        }
     }
     setLoading(false);
   };
@@ -72,25 +76,18 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-white to-[#FDE2EB] flex items-center justify-center px-4 py-10 font-sans">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]">
         
-        {/* LEFT PANEL - Giới thiệu */}
+        {/* LEFT PANEL */}
         <div className="hidden md:flex flex-1 bg-[#f9d5df] flex-col items-center justify-center p-12 text-center">
           <div className="bg-white/40 p-6 rounded-full mb-6 backdrop-blur-sm">
-            {/* Thay thế bằng Logo của bạn hoặc Icon tạm thời */}
-            <img 
-  src="/DDT-Photoroom.png" 
-  alt="DDT Flower Logo" 
-  className="w-32 h-auto object-contain" 
-/>
+            <img src="/DDT-Photoroom.png" alt="DDT Flower Logo" className="w-32 h-auto object-contain" />
           </div>
-          <h2 className="text-4xl font-extrabold text-[#e06c7f] tracking-tight mb-4">
-            DDT Flower Shop
-          </h2>
+          <h2 className="text-4xl font-extrabold text-[#e06c7f] tracking-tight mb-4">DDT Flower Shop</h2>
           <p className="text-[#a46473] text-lg leading-relaxed max-w-xs">
             Nơi gửi gắm yêu thương qua từng bó hoa tươi thắm 💐
           </p>
         </div>
 
-        {/* RIGHT PANEL - Form */}
+        {/* RIGHT PANEL */}
         <div className="flex-1 p-8 md:p-14 flex flex-col justify-center">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-800">
@@ -108,14 +105,16 @@ const Login = () => {
           )}
 
           <form onSubmit={mode === "login" ? handleLogin : handleRegister} className="space-y-5">
+            
+            {/* INPUT HỌ TÊN - CHỈ HIỆN KHI ĐĂNG KÝ */}
             {mode === "register" && (
               <div>
-                <label className="text-xs font-bold uppercase text-gray-400 tracking-wider">Họ tên</label>
+                <label className="text-xs font-bold uppercase text-gray-400 tracking-wider">Họ và tên</label>
                 <input
                   type="text"
                   required
                   className="w-full mt-1 p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#f9d5df] focus:border-[#e06c7f] outline-none transition-all"
-                  placeholder="Nguyễn Văn A"
+                  placeholder="Nhập họ tên của bạn"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -155,6 +154,22 @@ const Login = () => {
               </div>
             </div>
 
+            {/* CHECKBOX KHUYẾN MÃI - CHỈ HIỆN KHI ĐĂNG KÝ */}
+            {mode === "register" && (
+              <div className="flex items-center gap-2 py-2">
+                <input 
+                  type="checkbox" 
+                  id="news"
+                  checked={subscribeNewsletter}
+                  onChange={(e) => setSubscribeNewsletter(e.target.checked)}
+                  className="accent-[#e06c7f] w-4 h-4 cursor-pointer"
+                />
+                <label htmlFor="news" className="text-sm text-gray-500 cursor-pointer select-none">
+                  Đăng ký nhận thông tin khuyến mãi từ DDT Flower 🌸
+                </label>
+              </div>
+            )}
+
             {mode === "login" && (
               <div className="text-right">
                 <Link className="text-sm font-semibold text-[#e06c7f] hover:text-[#d35d75]">
@@ -180,24 +195,21 @@ const Login = () => {
           </div>
 
           <div className="flex gap-4">
-            <button
-              onClick={handleFacebookLogin}
-              className="flex-1 border border-gray-200 py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors font-semibold text-gray-600"
-            >
-              <span className="text-blue-600 font-bold">f</span> Facebook
+            <button onClick={handleFacebookLogin} className="flex-1 border border-gray-200 py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors font-semibold text-gray-600">
+              <span className="text-blue-600 font-bold text-lg">f</span> Facebook
             </button>
-            <button
-              onClick={() => googleLoginCustom()}
-              className="flex-1 border border-gray-200 py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors font-semibold text-gray-600"
-            >
-              <span className="text-red-500 font-bold">G</span> Google
+            <button onClick={() => googleLoginCustom()} className="flex-1 border border-gray-200 py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors font-semibold text-gray-600">
+              <span className="text-red-500 font-bold text-lg">G</span> Google
             </button>
           </div>
 
           <p className="mt-10 text-center text-gray-500">
             {mode === "login" ? "Bạn chưa có tài khoản?" : "Bạn đã có tài khoản?"}{" "}
             <button
-              onClick={() => setMode(mode === "login" ? "register" : "login")}
+              onClick={() => {
+                setMode(mode === "login" ? "register" : "login");
+                setError(""); // Xóa lỗi khi chuyển mode
+              }}
               className="text-[#e06c7f] font-bold hover:underline ml-1"
             >
               {mode === "login" ? "Đăng ký ngay" : "Đăng nhập"}
