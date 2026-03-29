@@ -100,8 +100,25 @@ app.post('/api/auth/login', async (req, res) => {
 });
 // --- PRODUCTS ---
 app.get('/api/products', async (req, res) => {
-    const products = await Product.find();
-    res.json({ success: true, products });
+    try {
+        const { category, minPrice, maxPrice, sort } = req.query;
+        let query = {};
+
+        if (category) query.category = category;
+        if (minPrice || maxPrice) {
+            query.price = { $gte: Number(minPrice || 0), $lte: Number(maxPrice || 10000000) };
+        }
+
+        // --- LOGIC SẮP XẾP ---
+        let sortQuery = { createdAt: -1 }; // Mặc định mới nhất
+        if (sort === 'price-asc') sortQuery = { price: 1 };
+        if (sort === 'price-desc') sortQuery = { price: -1 };
+
+        const products = await Product.find(query).sort(sortQuery);
+        res.json({ success: true, products });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 app.get('/api/products/:id', async (req, res) => {

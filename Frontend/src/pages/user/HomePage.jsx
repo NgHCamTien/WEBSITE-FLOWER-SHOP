@@ -63,7 +63,7 @@ const Home = () => {
     <div className="flex flex-col min-h-screen bg-[#FFFDFD]">
       {/* Chỉ giữ Header (Navbar đã nằm trong Header mẫu bạn gửi) */}
       <Header />
-
+ 
 <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-6 pt-0"> 
   {/* pt-0 để xóa bỏ mọi khoảng cách phía trên */}
 
