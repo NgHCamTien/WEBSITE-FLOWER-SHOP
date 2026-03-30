@@ -30,20 +30,23 @@ export const AuthProvider = ({ children }) => {
   };
 
 // --- 2. LOGIC ĐĂNG NHẬP THẬT ---
+// AuthContext.jsx
 const login = async (email, password) => {
   try {
     const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
     if (res.data.success) {
       setUser(res.data.user);
-      // Lưu lại để không bị mất khi load lại trang
+      
+      // LƯU CẢ 2 CÁI NÀY NÈ TIÊN:
       localStorage.setItem('user', JSON.stringify(res.data.user)); 
+      localStorage.setItem('token', res.data.token); // <--- THÊM DÒNG NÀY (Đảm bảo Backend trả về res.data.token)
+      
       return { success: true, user: res.data.user };
     }
   } catch (error) {
     return { success: false, message: "Sai tài khoản hoặc mật khẩu!" };
   }
 };
-
   const logout = () => {
     setUser(null);
   };

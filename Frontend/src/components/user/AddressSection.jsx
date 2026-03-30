@@ -9,7 +9,6 @@ const AddressSection = ({ address, onEdit, onPhoneChange, userId }) => {
   });
 
   const handleComplete = async () => {
-    // Gom thông tin lại thành 1 chuỗi địa chỉ
     const fullAddress = `${formData.detail}, ${formData.city}`;
     
     if (!formData.fullName || !formData.phone || !formData.detail || !formData.city) {
@@ -17,23 +16,35 @@ const AddressSection = ({ address, onEdit, onPhoneChange, userId }) => {
     }
 
     try {
-      // 1. Lưu vào Database
-      await axios.post(`http://localhost:5000/api/users/address`, {
-        userId,
-        ...formData,
-        fullAddress
-      });
+      // 1. Lấy Token từ localStorage (Tiên lưu lúc Login)
+      const token = localStorage.getItem('token'); 
+      
+      if (!token) {
+        return alert("Tiên ơi, bạn cần đăng nhập để lưu địa chỉ nhé!");
+      }
 
-      // 2. Gửi dữ liệu ngược lại cho trang Checkout
+      // 2. Gửi dữ liệu kèm Header Authorization
+      await axios.post(`http://localhost:5000/api/users/address`, 
+        { ...formData, fullAddress }, // Body dữ liệu
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}` // THÊM DÒNG NÀY ĐỂ BACKEND XÁC THỰC
+          } 
+        }
+      );
+
+      // 3. Cập nhật giao diện Checkout
       onEdit(fullAddress);
       onPhoneChange(formData.phone);
       
-      // 3. Đóng Modal và xóa dữ liệu tạm trong form
+      // 4. Reset Form
       setIsModalOpen(false);
       setFormData({ fullName: '', phone: '', city: '', detail: '' });
-      alert("Đã cập nhật địa chỉ! ✨");
+      alert("Đã cập nhật địa chỉ thành công! ✨");
+
     } catch (err) {
-      alert("Lỗi rồi Tiên ơi, kiểm tra server nhé!");
+      console.error(err);
+      alert("Lỗi rồi Tiên ơi, có thể phiên đăng nhập đã hết hạn!");
     }
   };
 
