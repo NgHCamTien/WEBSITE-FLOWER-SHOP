@@ -65,7 +65,7 @@ const AddProduct = ({ isOpen, onClose, onRefresh }) => {
     data.append('description', formData.description);
 
     files.forEach(file => { 
-      if (file) data.append('thumbnail', file); 
+      if (file) data.append('images', file); 
     });
 
     try {

@@ -16,13 +16,20 @@ const ProductDetail = () => {
   const { addToCart } = useContext(CartContext) || {};
   const API_URL = 'http://localhost:5000';
 
+  // --- HÀM LẤY ẢNH ĐÃ SỬA ---
+  const getImageUrl = (imgName) => {
+      if (!imgName) return "/DDT.png"; 
+      if (imgName.startsWith('http')) return imgName;
+      const cleanName = imgName.replace('uploads/', '').replace(/\\/g, '/');
+      return `${API_URL}/uploads/${cleanName}`;
+  };
+
   useEffect(() => {
     const fetchProductData = async () => {
       try {
         const res = await axios.get(`${API_URL}/api/products/${id}`);
         if (res.data.success) {
           setProduct(res.data.product);
-          // Fetch sản phẩm gợi ý cùng danh mục
           const relatedRes = await axios.get(`${API_URL}/api/products?category=${res.data.product.category}`);
           setRelatedProducts(relatedRes.data.products.filter(p => p._id !== id).slice(0, 4));
         }
@@ -36,7 +43,6 @@ const ProductDetail = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  // Logic chuyển ảnh qua lại
   const nextImage = () => {
     setMainImage((prev) => (prev === (product.thumbnail?.length || 1) - 1 ? 0 : prev + 1));
   };
@@ -59,27 +65,21 @@ const ProductDetail = () => {
         {/* CỘT TRÁI: THƯ VIỆN ẢNH CÓ NÚT BẤM */}
         <div className="space-y-6">
           <div className="aspect-square rounded-[2rem] overflow-hidden border border-pink-50 shadow-inner relative group bg-white">
+            {/* SỬA ẢNH CHÍNH Ở ĐÂY */}
             <img 
-              src={`${API_URL}${images[mainImage]}`} 
+              src={getImageUrl(images[mainImage])} 
               className="w-full h-full object-cover transition-all duration-500" 
               alt={product.name} 
+              onError={(e) => (e.currentTarget.src = '/DDT.png')}
             />
 
-            {/* Nút điều hướng ảnh (Chỉ hiện khi hover) */}
-            <button 
-              onClick={prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-[#e06c7f] flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-[#e06c7f] hover:text-white"
-            >
+            <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-[#e06c7f] flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-[#e06c7f] hover:text-white">
               <FaChevronLeft size={14} />
             </button>
-            <button 
-              onClick={nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-[#e06c7f] flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-[#e06c7f] hover:text-white"
-            >
+            <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-[#e06c7f] flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-[#e06c7f] hover:text-white">
               <FaChevronRight size={14} />
             </button>
 
-            {/* Chỉ số ảnh */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
               <div className="bg-black/30 text-white text-[10px] px-3 py-1 rounded-full backdrop-blur-md font-bold tracking-widest">
                 {mainImage + 1} / {images.length}
@@ -87,7 +87,7 @@ const ProductDetail = () => {
             </div>
           </div>
           
-          {/* Danh sách ảnh nhỏ (Thumbnails) */}
+          {/* SỬA ẢNH THUMBNAILS Ở ĐÂY */}
           <div className="flex gap-3 justify-center overflow-x-auto py-2 px-1">
             {images.map((img, idx) => (
               <div 
@@ -97,7 +97,7 @@ const ProductDetail = () => {
                   mainImage === idx ? 'border-[#e06c7f] scale-95 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'
                 }`}
               >
-                <img src={`${API_URL}${img}`} className="w-full h-full object-cover" alt="" />
+                <img src={getImageUrl(img)} className="w-full h-full object-cover" alt="" />
               </div>
             ))}
           </div>
@@ -132,7 +132,8 @@ const ProductDetail = () => {
 
             <div className="flex gap-4">
               <button 
-                onClick={() => addToCart({ ...product, quantity, image: `${API_URL}${images[0]}` })}
+                // SỬA LINK ẢNH KHI GỬI VÀO GIỎ HÀNG
+                onClick={() => addToCart({ ...product, quantity, image: getImageUrl(images[0]) })}
                 className="flex-[2] bg-pink-100 text-[#e06c7f] py-4 rounded-2xl font-bold hover:bg-[#e06c7f] hover:text-white transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest active:scale-95"
               >
                 <FaShoppingCart /> Thêm vào giỏ
@@ -145,7 +146,7 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* 2. TABS MÔ TẢ & THÔNG TIN */}
+      {/* 2. TABS (GIỮ NGUYÊN) */}
       <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-pink-50">
         <div className="flex gap-10 border-b border-pink-50 mb-8">
           {['description', 'info'].map((tab) => (
@@ -177,7 +178,7 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* 3. ĐÁNH GIÁ (REVIEW) */}
+      {/* 3. ĐÁNH GIÁ (GIỮ NGUYÊN) */}
       <div className="bg-[#FEF2F4]/50 rounded-[2.5rem] p-8 md:p-12 border border-pink-100 shadow-inner">
         <h3 className="font-bold text-[#881337] uppercase tracking-[0.3em] mb-10 text-center text-sm">Cảm nhận khách hàng</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -196,7 +197,7 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* 4. GỢI Ý SẢN PHẨM */}
+      {/* 4. GỢI Ý SẢN PHẨM (SỬA ẢNH Ở ĐÂY) */}
       <div className="space-y-10 pt-4">
         <div className="flex justify-between items-end px-2">
           <div className="space-y-2">
@@ -213,7 +214,8 @@ const ProductDetail = () => {
           {relatedProducts.map(p => (
             <Link to={`/product-detail/${p._id}`} key={p._id} className="group bg-white rounded-[2rem] overflow-hidden shadow-sm border border-pink-50 p-4 hover:-translate-y-2 transition-all duration-500">
               <div className="aspect-[4/5] rounded-2xl overflow-hidden mb-4 relative">
-                <img src={`${API_URL}${p.thumbnail?.[0]}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="" />
+                {/* SỬA ẢNH SẢN PHẨM GỢI Ý */}
+                <img src={getImageUrl(p.image || p.thumbnail?.[0])} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt="" />
                 <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <h4 className="text-sm font-bold text-gray-700 truncate px-2 group-hover:text-[#e06c7f] transition-colors text-center">{p.name}</h4>

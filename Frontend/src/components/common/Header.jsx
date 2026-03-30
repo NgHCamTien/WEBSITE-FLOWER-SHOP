@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
 import { CartContext } from "../../context/CartContext";
-import { FaClipboardCheck, FaSearch, FaShoppingCart } from "react-icons/fa";
+import { FaClipboardCheck, FaSearch, FaShoppingCart, FaUser, FaSignOutAlt, FaBoxOpen } from "react-icons/fa";
 import Navbar from "./Navbar";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
@@ -23,7 +23,7 @@ const Header = () => {
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  // ... (Giữ nguyên các useEffect logic tìm kiếm của bạn) ...
+  // Logic tìm kiếm
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     setSearchTerm(params.get("q") || "");
@@ -84,19 +84,31 @@ const Header = () => {
     <>
       <header 
         ref={headerRef} 
-        className="fixed top-0 left-0 w-full z-[100] bg-white shadow-md"
+        className="fixed top-0 left-0 w-full z-[100] bg-white shadow-md font-sans"
       >
-        {/* 1. TOP BAR */}
-        <div className="relative z-[110] bg-gray-800 text-white text-[11px] flex justify-between px-6 py-1.5 font-sans">
-          <p>🌸 DDT Flower Shop - Nơi gửi gắm yêu thương 🌸</p>
-          <div className="flex gap-4">
+        {/* 1. TOP BAR - Đã chỉnh màu nâu đen sang trọng */}
+        <div className="relative z-[110] bg-[#1e293b] text-[#FAF9F9]/90 text-[10px] uppercase tracking-[0.15em] flex justify-between px-8 py-2 border-b border-white/5">
+          <p className="hidden md:block">🌸 DDT Flower Shop - Nơi gửi gắm yêu thương 🌸</p>
+          <div className="flex items-center gap-6">
             {user ? (
               <>
-                <Link to="/profile" className="hover:text-pink-300 transition">Chào, {user.name}</Link>
-                <button onClick={logout} className="hover:text-pink-300 transition border-l border-gray-600 pl-4">Đăng xuất</button>
+                <Link to="/profile" className="hover:text-pink-300 transition flex items-center gap-1.5 font-bold">
+                  <FaUser className="text-[9px]" /> CHÀO, {user.name}
+                </Link>
+                
+                {/* NÚT ĐƠN HÀNG MỚI THÊM VÀO TOP BAR */}
+                <Link to="/orders" className="hover:text-pink-300 transition flex items-center gap-1.5 border-l border-white/10 pl-5">
+                  <FaBoxOpen className="text-[11px]" /> ĐƠN HÀNG
+                </Link>
+
+                <button onClick={logout} className="hover:text-pink-300 transition border-l border-white/10 pl-5 flex items-center gap-1.5">
+                  <FaSignOutAlt className="text-[10px]" /> ĐĂNG XUẤT
+                </button>
               </>
             ) : (
-              <Link to="/login" className="hover:text-pink-300 transition cursor-pointer relative z-[120]">Đăng nhập</Link>
+              <Link to="/login" className="hover:text-pink-300 transition cursor-pointer relative z-[120] font-bold">
+                Đăng nhập
+              </Link>
             )}
           </div>
         </div>
@@ -108,10 +120,10 @@ const Header = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group shrink-0">
               <img src="/DDT.png" alt="Logo" className="w-12 h-12 rounded-full border border-pink-50 shadow-sm transition-transform group-hover:scale-105" />
-              <span className="text-2xl font-serif text-[#4b2c2b] font-bold tracking-tight">DDT Flower</span>
+              <span className="text-2xl font-serif text-[#4b2c2b] font-bold tracking-tight italic">DDT Flower</span>
             </Link>
 
-            {/* Search */}
+            {/* Search Bar */}
             <div className="relative flex-1 max-w-xl" ref={searchWrapperRef}>
               <form 
                 onSubmit={handleSearchSubmit} 
@@ -130,9 +142,9 @@ const Header = () => {
                 </button>
               </form>
 
-              {/* Suggestions Dropdown */}
+              {/* Suggestions */}
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 mt-2 bg-white border border-pink-50 rounded-2xl shadow-xl max-h-80 overflow-y-auto z-[150] animate-fadeIn">
+                <div className="absolute left-0 right-0 mt-2 bg-white border border-pink-50 rounded-2xl shadow-xl max-h-80 overflow-y-auto z-[150]">
                   {suggestions.map((item) => (
                     <button
                       key={item._id}
@@ -159,7 +171,8 @@ const Header = () => {
             </div>
 
             {/* Actions */}
-            {/* 👑 NÚT QUẢN LÝ DÀNH RIÊNG CHO ADMIN */}
+            <div className="flex items-center gap-4 shrink-0">
+              {/* Nút Admin */}
               {user && user.role === 'admin' && (
                 <Link
                   to="/admin"
@@ -168,24 +181,26 @@ const Header = () => {
                   📊 Quản lý
                 </Link>
               )}
-            <div className="flex items-center gap-4 shrink-0">
+
+              {/* Theo dõi đơn hàng (Link về trang /orders Tiên vừa làm)
               {user && (
                 <Link
-                  to="/payment-tracking"
-                  className="hidden lg:flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#fff0f4] text-[#e06c7f] text-sm font-medium hover:bg-[#ffe1ea] transition-all shadow-sm"
+                  to="/orders"
+                  className="hidden lg:flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#fff0f4] text-[#e06c7f] text-[12px] font-bold uppercase tracking-widest hover:bg-[#ffe1ea] transition-all shadow-sm border border-pink-100"
                 >
                   <FaClipboardCheck /> Theo dõi đơn
                 </Link>
-              )}
+              )} */}
 
+              {/* Giỏ hàng */}
               <Link
                 to="/cart"
-                className="relative bg-[#d15574] text-white px-6 py-2.5 rounded-full flex items-center gap-2 hover:bg-[#b74662] transition-all shadow-md active:scale-95"
+                className="relative bg-[#d15574] text-white px-6 py-2.5 rounded-full flex items-center gap-2 hover:bg-[#b74662] transition-all shadow-md active:scale-95 border border-[#b74662]"
               >
                 <FaShoppingCart />
-                <span className="font-bold text-sm text-white">Giỏ hàng</span>
+                <span className="font-bold text-sm text-white uppercase tracking-widest">Giỏ hàng</span>
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">
+                  <span className="absolute -top-1 -right-1 bg-[#1A0505] text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white">
                     {cartCount}
                   </span>
                 )}
@@ -194,12 +209,12 @@ const Header = () => {
           </div>
         </div>
 
-        {/* 3. NAVBAR - Đặt cuối Header để nó nằm dưới cùng của thanh điều hướng */}
+        {/* 3. NAVBAR */}
         <Navbar />
       </header>
 
-      {/* 🌸 THẺ ĐỆM SPACER: Chỉnh lại để không bị quá cao hoặc quá thấp */}
-      <div className="h-[145px] md:h-[165px]" />
+      {/* THẺ ĐỆM SPACER */}
+      <div className="h-[150px] md:h-[175px]" />
     </>
   );
 };
