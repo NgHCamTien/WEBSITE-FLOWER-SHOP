@@ -1,38 +1,43 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const mongoose = require('mongoose');
 
-// 1. Kiểm tra xem người dùng đã đăng nhập chưa (Có Token không?)
 const protect = async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      // Lấy token từ header (dạng: Bearer abcxyz...)
       token = req.headers.authorization.split(' ')[1];
 
-      // Giải mã token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // 1. Giải mã token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
 
-      // Lấy thông tin user từ DB (không lấy password) và gán vào request
+      // 2. Lấy Model User trực tiếp từ mongoose để tránh lỗi Schema
+      const User = mongoose.model('User');
+      
+      // 3. Tìm user và gán vào req.user
       req.user = await User.findById(decoded.id).select('-password');
       
+      if (!req.user) {
+        return res.status(401).json({ success: false, message: 'Người dùng không tồn tại!' });
+      }
+
       next();
     } catch (error) {
-      res.status(401).json({ success: false, message: 'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại!' });
+      console.error("Lỗi xác thực Token:", error.message);
+      return res.status(401).json({ success: false, message: 'Phiên đăng nhập hết hạn!' });
     }
   }
 
   if (!token) {
-    res.status(401).json({ success: false, message: 'Bạn cần đăng nhập để thực hiện thao tác này.' });
+    return res.status(401).json({ success: false, message: 'Bạn chưa gửi Token!' });
   }
 };
 
-// 2. Kiểm tra xem có phải là ADMIN không
 const admin = (req, res, next) => {
   if (req.user && req.user.role === 'admin') {
-    next(); // Đúng là admin thì cho đi tiếp
+    next();
   } else {
-    res.status(403).json({ success: false, message: 'Truy cập bị từ chối! Chỉ dành cho Admin.' });
+    res.status(403).json({ success: false, message: 'Chỉ dành cho Admin!' });
   }
 };
 
